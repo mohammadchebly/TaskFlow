@@ -27,7 +27,7 @@ This project was created to improve my frontend development skills and practice 
 
 ## Live Demo
 
-https://mohammadchebly.github.io/Task-Manager/
+https://mohammadchebly.github.io/TaskFlow/
 
 ## Author
 
