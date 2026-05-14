@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 1) 0%, rgba(6, 21, 48, 1) 50%, rgba(2, 6, 23, 1) 100%);
+      color: #f8fafc;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h1 {
+      margin-left: 120px;
+      font-size: 50px;
+      font-weight: 800;
+    }
+
+    #taskForm {
+      background-color: #111c31;
+      display: inline-block;
+      padding: 70px;
+      margin-left: 100px;
+      border: 1px solid rgba(125, 122, 122, 0.65);
+      border-radius: 50px;
+      box-shadow: #111c31;
+    }
+
+    .controls, .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    input, select{
+      height: 39px;
+      border: 1px solid #253247;
+      border-radius: 10px;
+      background: #0b1220;
+      color: #e5e7eb;
+      font-size: 16px;
+      padding: 0 11px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 8px 18px rgba(0, 0, 0, 0.18);
+      outline: none;
+    }
+
+    button {
+      height: 39px;
+      border: 1px solid #253247;
+      border-radius: 10px;
+      background: #148eda;
+      color: #ffffff;
+      font-size: 17px;
+      padding: 0 11px;
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 216px;
+    }
+
+    select {
+      width: 100px;
+    }
+
+    input[type="date"] {
+      width: 160px;
+    }
+
+    button {
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: #3b4a66;
+      background: #111c31;
+    }
+
+    .task-list {
+      margin-top: 16px;
+      width: 100%;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 34px 1fr 140px 160px 92px;
+      column-gap: 10px;
+      margin-top: 7px;
+      border: 1px solid #253247;
+      border-radius: 20px;
+      align-items: center;
+      min-height: 66px;
+      padding: 0 15px;
+      background: #0b1220;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.7);
+      box-shadow: inset 0 0 35px rgba(15, 23, 42, 0.45);
+    }
+
+    .task:last-child {
+      border-bottom: none;
+    }
+
+    .task input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      accent-color: #e5e7eb;
+      box-shadow: none;
+    }
+
+    .task-title {
+      font-size: 21px;
+      font-weight: 700;
+    }
+
+    .task.done .task-title,
+    .task.done .date {
+      color: #7f8ba0;
+      text-decoration: line-through;
+    }
+
+    .badge {
+      width: 136px;
+      height: 28px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 7px;
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .low {
+      color: #a8c5ff;
+      background: linear-gradient(90deg, #1e293b, #26364f);
+    }
+
+    .medium {
+      color: #facc15;
+      background: linear-gradient(90deg, #263040, #334155);
+    }
+
+    .high {
+      color: #fca5a5;
+      background: linear-gradient(90deg, #5b2525, #3f1f2a);
+    }
+
+    .date {
+      color: #cbd5e1;
+      font-size: 16px;
+    }
+
+    .delete-btn {
+      width: 70px;
+      justify-self: end;
+    }
+
+    .stats {
+      margin-top: 12px;
+      color: #b6c0d2;
+      font-size: 16px;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        margin-top: 36px;
+      }
+
+      .task {
+        grid-template-columns: 32px 1fr 90px;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .badge,
+      .date,
+      .delete-btn {
+        grid-column: 2 / -1;
+        justify-self: start;
+      }
+
+      .badge {
+        width: 136px;
+      }
+    }
+  </style>
+</head>
+<body>  
+  <h1>Task Manager</h1>
+
+  <main id="taskForm">
+    <form class="controls" id="task">
+      <input id="Input" type="text" placeholder="Task title" autocomplete="off" />
+      <select id="priority">
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+      </select>
+      <input id="date" type="date" value="yyyy-dd-mm" />
+      <button type="submit">Add</button>
+      </form>
+
+      <div class="actions">
+        <button id="toggleAll" type="button">Toggle All</button>
+        <button id="clearCompleted" type="button">Clear Completed</button>
+      </div>
+
+      <section id="taskList" class="task-list" aria-label="Tasks"></section>
+      <div id="stats" class="stats"></div>
+    </main>
+
+    <script>
+      const form = document.getElementById('task');
+      const taskInput = document.getElementById('Input');
+      const priorityInput = document.getElementById('priority');
+      const dateInput = document.getElementById('date');
+      const taskList = document.getElementById('taskList');
+      const stats = document.getElementById('stats');
+      const toggleAll = document.getElementById('toggleAll');
+      const clearCompleted = document.getElementById('clearCompleted');
+
+      let tasks = [];
+
+      let savedTasks = localStorage.getItem('tasks');
+
+      if (savedTasks != null) {
+        tasks = JSON.parse(savedTasks);
+      }
+
+      function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+      function showTasks() {
+        taskList.innerHTML = '';
+
+        for (let i = 0; i < tasks.length; i++) {
+          let task = tasks[i];
+
+          let row = document.createElement('article');
+          row.className = 'task';
+
+          if (task.done == true) {
+            row.className = 'task done';
+          }
+
+          let checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = task.done;
+
+          checkbox.onclick = function () {
+            task.done = checkbox.checked;
+            saveTasks();
+            showTasks();
+          };
+
+          let title = document.createElement('div');
+          title.className = 'task-title';
+          title.textContent = task.title;
+
+          let badge = document.createElement('span');
+          badge.className = 'badge ' + task.priority.toLowerCase();
+          badge.textContent = task.priority;
+
+          let taskDate = document.createElement('span');
+          taskDate.className = 'date';
+          taskDate.textContent = task.date;
+
+          let deleteButton = document.createElement('button');
+          deleteButton.className = 'delete-btn';
+          deleteButton.type = 'button';
+          deleteButton.textContent = 'Delete';
+
+          deleteButton.onclick = function () {
+            tasks.splice(i, 1);
+            saveTasks();
+            showTasks();
+          };
+
+          row.appendChild(checkbox);
+          row.appendChild(title);
+          row.appendChild(badge);
+          row.appendChild(taskDate);
+          row.appendChild(deleteButton);
+
+          taskList.appendChild(row);
+        }
+
+        showStats();
+      }
+
+      function showStats() {
+        let completed = 0;
+
+        for (let i = 0; i < tasks.length; i++) {
+          if (tasks[i].done == true) {
+            completed++;
+          }
+        }
+
+        let active = tasks.length - completed;
+
+        stats.textContent =
+          'Total: ' + tasks.length +
+          ' • Active: ' + active +
+          ' • Completed: ' + completed;
+      }
+
+      form.onsubmit = function (event) {
+        event.preventDefault();
+
+        let title = taskInput.value.trim();
+        let priority = priorityInput.value;
+        let date = dateInput.value;
+
+        if (title == '') {
+          return;
+        }
+
+        if (date == '') {
+          date = new Date().toISOString().slice(0, 10);
+        }
+
+        let newTask = {
+          title: title,
+          priority: priority,
+          date: date,
+          done: false
+        };
+
+        tasks.push(newTask);
+
+        saveTasks();
+        showTasks();
+
+        taskInput.value = '';
+        dateInput.value = '';
+        taskInput.focus();
+      };
+
+      toggleAll.onclick = function () {
+        let hasActiveTask = false;
+
+        for (let i = 0; i < tasks.length; i++) {
+          if (tasks[i].done == false) {
+            hasActiveTask = true;
+          }
+        }
+
+        for (let i = 0; i < tasks.length; i++) {
+          tasks[i].done = hasActiveTask;
+        }
+
+        saveTasks();
+        showTasks();
+      };
+
+      clearCompleted.onclick = function () {
+        let activeTasks = [];
+
+        for (let i = 0; i < tasks.length; i++) {
+          if (tasks[i].done == false) {
+            activeTasks.push(tasks[i]);
+          }
+        }
+
+        tasks = activeTasks;
+
+        saveTasks();
+        showTasks();
+      };
+
+      showTasks();
+  </script>
+
+</body>
+</html>
