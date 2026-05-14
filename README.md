@@ -21,6 +21,10 @@ A modern and responsive Task Manager web application built to help users organiz
 
 This project was created to improve my frontend development skills and practice building interactive web applications using pure JavaScript.
 
+## Live Demo
+
+https://mohammadchebly.github.io/Task-Manager/
+
 ## Author
 
 Mohammad Chebly
